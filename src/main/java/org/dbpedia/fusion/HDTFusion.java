@@ -9,12 +9,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class HDT {
+public class HDTFusion {
 
     static Map<String, org.rdfhdt.hdt.hdt.HDT> langToHDT = new HashMap<>();
 
 
-    // Load an HDT and perform a search. (examples/ExampleSearch.java)
+    // Load an HDTFusion and perform a search. (examples/ExampleSearch.java)
     public static void main(String[] args) throws Exception {
 
         for (String lang : languages) {
@@ -29,9 +29,11 @@ public class HDT {
 
 
 
-        // Load HDT file.
+        // Load HDTFusion file.
         // NOTE: Use loadIndexedHDT() for ?P?, ?PO or ??O queries
-        //HDT hdt = HDTManager.loadHDT("data/hdt/downloads.dbpedia.org/2016-10/tmp/data/als/wkd_uris_selection.gz.hdt", null);
+        HDT hdt = HDTManager.loadHDT("data/hdt/downloads.dbpedia.org/2016-10/tmp/data/als/wkd_uris_selection.gz.hdt", null);
+
+        
 
         // Search pattern: Empty string means "any"
         /*IteratorTripleString it = hdt.search("", "", "");

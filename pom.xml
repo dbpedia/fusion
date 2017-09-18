@@ -1,11 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.dbpedia.data</groupId>
-	<artifactId>json-dump</artifactId>
+	<groupId>org.dbpedia.fusion</groupId>
+	<artifactId>fusion</artifactId>
 	<version>1.0</version>
 	<name>${project.artifactId}</name>
-	<description>DBpedia rdf to JSON converter</description>
+	<description>DBpedia Fusion</description>
 
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -48,7 +48,7 @@
             <version>1.1</version>
         </dependency>
 
-		<!-- HDT -->
+		<!-- HDTFusion -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
