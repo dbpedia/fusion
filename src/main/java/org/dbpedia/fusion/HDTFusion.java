@@ -10,18 +10,17 @@ import org.rdfhdt.hdt.triples.TripleString;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class HDTFusion {
 
-    private static Map<String, org.rdfhdt.hdt.hdt.HDT> langToHDT = null;
+    private static Map<String, HDT> langToHDT = null;
 
 
     public static Map getMap() {
 
         if (langToHDT == null) {
             langToHDT = new HashedMap();
-            for (String lang : languages) {
+            for (String lang : Strings.languages) {
                 try {
 
                     langToHDT.put(lang, HDTManager.loadHDT("data/hdt/downloads.dbpedia.org/2016-10/tmp/data/" + lang + "/wkd_uris_selection.gz.hdt", null));
@@ -29,7 +28,7 @@ public class HDTFusion {
                     System.err.println(e.getMessage());
                 }
             }
-            System.out.println("loaded " + langToHDT.size() + "/" + languages.length);
+            System.out.println("loaded " + langToHDT.size() + "/" + Strings.languages.length);
         }
 
         return langToHDT;
@@ -37,23 +36,18 @@ public class HDTFusion {
     }
 
 
-    static void getByIDandProperty(String identifier, String property) throws NotFoundException {
+    static void getByIDandProperty(String identifier, String property, ValueAggregator valag) throws NotFoundException {
 
         Map<String, HDT> l = getMap();
-        Map<String, List<TripleString>> langtotriples = new HashMap();
 
         for (String lang : l.keySet()) {
             HDT hdt = l.get(lang);
             // Search pattern: Empty string means "any"
             try {
                 IteratorTripleString it = hdt.search(identifier, property, "");
-                while (it.hasNext())
-
-                {
+                while (it.hasNext()) {
                     TripleString ts = it.next();
-                    ValAgg.put(identifier, ts.getObject().toString(), lang);
-                    //System.out.println(ts.getObject());
-                    //System.out.println(lang + " " + ts);
+                    valag.put(identifier, ts.getObject().toString(), lang);
                 }
             } catch (NotFoundException nfe) {
                 //intentionally left blank.
@@ -114,142 +108,6 @@ public class HDTFusion {
         }
 
     }
-
-
-    static String[] languages = new String[]{"af",
-            "als",
-            "am",
-            "an",
-            "ar",
-            "arz",
-            "ast",
-            "az",
-            "azb",
-            "ba",
-            "bar",
-            "bat_smg",
-            "be",
-            "bg",
-            "bn",
-            "bpy",
-            "br",
-            "bs",
-            "bug",
-            "ca",
-            "ce",
-            "ceb",
-            "ckb",
-            "commons",
-            "cs",
-            "cv",
-            "cy",
-            "da",
-            "de",
-            "el",
-            "en",
-            "eo",
-            "es",
-            "et",
-            "eu",
-            "fa",
-            "fi",
-            "fo",
-            "fr",
-            "fy",
-            "ga",
-            "gd",
-            "gl",
-            "gu",
-            "he",
-            "hi",
-            "hr",
-            "hsb",
-            "ht",
-            "hu",
-            "hy",
-            "ia",
-            "id",
-            "io",
-            "is",
-            "it",
-            "ja",
-            "jv",
-            "ka",
-            "kk",
-            "kn",
-            "ko",
-            "ku",
-            "ky",
-            "la",
-            "lb",
-            "li",
-            "lmo",
-            "lt",
-            "lv",
-            "mg",
-            "min",
-            "mk",
-            "ml",
-            "mn",
-            "mr",
-            "mrj",
-            "ms",
-            "my",
-            "mzn",
-            "nah",
-            "nap",
-            "nds",
-            "ne",
-            "new",
-            "nl",
-            "nn",
-            "no",
-            "oc",
-            "or",
-            "os",
-            "pa",
-            "pl",
-            "pms",
-            "pnb",
-            "pt",
-            "qu",
-            "ro",
-            "ru",
-            "sa",
-            "sah",
-            "scn",
-            "sco",
-            "sh",
-            "si",
-            "simple",
-            "sk",
-            "sl",
-            "sq",
-            "sr",
-            "su",
-            "sv",
-            "sw",
-            "ta",
-            "te",
-            "tg",
-            "th",
-            "tl",
-            "tr",
-            "tt",
-            "uk",
-            "ur",
-            "uz",
-            "vec",
-            "vi",
-            "vo",
-            "wa",
-            "war",
-            "wikidata",
-            "yi",
-            "yo",
-            "zh",
-            "zh_min_nan",
-            "zh_yue"};
 
 
 }

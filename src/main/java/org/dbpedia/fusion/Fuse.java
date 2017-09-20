@@ -10,13 +10,21 @@ public class Fuse {
 
         //HDTFusion.getByID("http://wikidata.dbpedia.org/resource/Q64");
 
-        String property = "http://dbpedia.org/ontology/areaCode";
-        for (int i=1;i<10000;i++) {
-            HDTFusion.getByIDandProperty("http://wikidata.dbpedia.org/resource/Q"+i, "http://dbpedia.org/ontology/areaCode");
+
+        for (String property : Strings.properties) {
+            ValueAggregator valag = new ValueAggregator();
+
+            for (int i = 1; i < 10000; i++) {
+                HDTFusion.getByIDandProperty("http://wikidata.dbpedia.org/resource/Q" + i, "http://dbpedia.org/ontology/" + property, valag);
+            }
+            String vstring = valag.toString();
+            if (vstring.length() > 0) {
+                FileWriter fw = new FileWriter("results/" + property + ".csv");
+                fw.write(vstring);
+                fw.close();
+            }
+            System.out.println("finished " + property);
         }
-        FileWriter fw = new FileWriter("result.tsv");
-        fw.write(ValAgg.ValaggtoString());
-        fw.close();
     }
 
 }
