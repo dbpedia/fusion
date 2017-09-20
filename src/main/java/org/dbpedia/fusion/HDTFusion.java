@@ -1,48 +1,117 @@
 package org.dbpedia.fusion;
 
+import org.apache.commons.collections.map.HashedMap;
+import org.rdfhdt.hdt.exceptions.NotFoundException;
 import org.rdfhdt.hdt.hdt.HDT;
 import org.rdfhdt.hdt.hdt.HDTManager;
 import org.rdfhdt.hdt.triples.IteratorTripleString;
 import org.rdfhdt.hdt.triples.TripleString;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class HDTFusion {
 
-    static Map<String, org.rdfhdt.hdt.hdt.HDT> langToHDT = new HashMap<>();
+    private static Map<String, org.rdfhdt.hdt.hdt.HDT> langToHDT = null;
 
 
-    // Load an HDTFusion and perform a search. (examples/ExampleSearch.java)
-    public static void main(String[] args) throws Exception {
+    public static Map getMap() {
 
-        for (String lang : languages) {
+        if (langToHDT == null) {
+            langToHDT = new HashedMap();
+            for (String lang : languages) {
+                try {
+
+                    langToHDT.put(lang, HDTManager.loadHDT("data/hdt/downloads.dbpedia.org/2016-10/tmp/data/" + lang + "/wkd_uris_selection.gz.hdt", null));
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
+            }
+            System.out.println("loaded " + langToHDT.size() + "/" + languages.length);
+        }
+
+        return langToHDT;
+
+    }
+
+
+    static void getByIDandProperty(String identifier, String property) throws NotFoundException {
+
+        Map<String, HDT> l = getMap();
+        Map<String, List<TripleString>> langtotriples = new HashMap();
+
+        for (String lang : l.keySet()) {
+            HDT hdt = l.get(lang);
+            // Search pattern: Empty string means "any"
             try {
-                langToHDT.put(lang, HDTManager.loadHDT("data/hdt/downloads.dbpedia.org/2016-10/tmp/data/" + lang + "/wkd_uris_selection.gz.hdt", null));
-            } catch (Exception e) {
+                IteratorTripleString it = hdt.search(identifier, property, "");
+                while (it.hasNext())
 
-                System.err.println(e.getMessage());
+                {
+                    TripleString ts = it.next();
+                    ValAgg.put(identifier, ts.getObject().toString(), lang);
+                    //System.out.println(ts.getObject());
+                    //System.out.println(lang + " " + ts);
+                }
+            } catch (NotFoundException nfe) {
+                //intentionally left blank.
+                //hdt.search should return null, not an NF exception
             }
         }
-        TimeUnit.MINUTES.sleep(1);
+
+    }
 
 
+    static void getByID(String identifier) throws NotFoundException {
 
-        // Load HDTFusion file.
-        // NOTE: Use loadIndexedHDT() for ?P?, ?PO or ??O queries
-        HDT hdt = HDTManager.loadHDT("data/hdt/downloads.dbpedia.org/2016-10/tmp/data/als/wkd_uris_selection.gz.hdt", null);
+        Map<String, HDT> l = getMap();
+        Map<String, List<TripleString>> langtotriples = new HashMap();
 
-        
+        for (String lang : l.keySet()) {
+            HDT hdt = l.get(lang);
+            // Search pattern: Empty string means "any"
+            try {
+                IteratorTripleString it = hdt.search(identifier, "", "");
+                while (it.hasNext())
 
-        // Search pattern: Empty string means "any"
-        /*IteratorTripleString it = hdt.search("", "", "");
-        while (it.hasNext())
+                {
+                    TripleString ts = it.next();
+                    //System.out.println(ts.getObject());
+                    System.out.println(lang + " " + ts);
+                }
+            } catch (NotFoundException nfe) {
+                //intentionally left blank.
+                //hdt.search should return null, not an NF exception
+            }
+        }
 
-        {
-            TripleString ts = it.next();
-            System.out.println(ts);
-        }*/
+    }
+
+
+    static void getByProperty(String property) throws NotFoundException {
+
+        Map<String, HDT> l = getMap();
+        Map<String, List<TripleString>> langtotriples = new HashMap();
+
+        for (String lang : l.keySet()) {
+            HDT hdt = l.get(lang);
+            // Search pattern: Empty string means "any"
+            try {
+                IteratorTripleString it = hdt.search("", property, "");
+                while (it.hasNext())
+
+                {
+                    TripleString ts = it.next();
+                    //System.out.println(ts.getObject());
+                    System.out.println(lang + " " + ts);
+                }
+            } catch (NotFoundException nfe) {
+                //intentionally left blank.
+                //hdt.search should return null, not an NF exception
+            }
+        }
 
     }
 
