@@ -1,0 +1,8 @@
+/* Sortable tables */
+table.sortable thead {
+    background-color:#eee;
+    color:#666666;
+    font-weight: bold;
+    cursor: default;
+}
+body {margin:6em 5% 19em 5%;box-shadow:0 .3em 1em #000;padding:10em 10em 10em 10em;}

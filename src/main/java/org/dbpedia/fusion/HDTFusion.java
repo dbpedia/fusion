@@ -7,7 +7,7 @@ import org.rdfhdt.hdt.hdt.HDTManager;
 import org.rdfhdt.hdt.triples.IteratorTripleString;
 import org.rdfhdt.hdt.triples.TripleString;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +23,7 @@ public class HDTFusion {
             for (String lang : Strings.languages) {
                 try {
 
-                    langToHDT.put(lang, HDTManager.loadHDT("data/hdt/downloads.dbpedia.org/2016-10/tmp/data/" + lang + "/wkd_uris_selection.gz.hdt", null));
+                    langToHDT.put(lang, HDTManager.loadIndexedHDT("data/hdt/downloads.dbpedia.org/2016-10/tmp/data/" + lang + "/wkd_uris_selection.gz.hdt", null));
                 } catch (Exception e) {
                     System.err.println(e.getMessage());
                 }
@@ -36,18 +36,22 @@ public class HDTFusion {
     }
 
 
-    static void getByIDandProperty(String identifier, String property, ValueAggregator valag) throws NotFoundException {
+    static void label(WikidataQ wikidataQ) throws NotFoundException {
 
         Map<String, HDT> l = getMap();
 
         for (String lang : l.keySet()) {
+            if(lang.equalsIgnoreCase("wikidata")){
+                continue;
+            }
             HDT hdt = l.get(lang);
+
             // Search pattern: Empty string means "any"
             try {
-                IteratorTripleString it = hdt.search(identifier, property, "");
+                IteratorTripleString it = hdt.search(wikidataQ.URI, "http://www.w3.org/2000/01/rdf-schema#label", "");
                 while (it.hasNext()) {
                     TripleString ts = it.next();
-                    valag.put(identifier, ts.getObject().toString(), lang);
+                    wikidataQ.labels.add(ts.getObject().toString());
                 }
             } catch (NotFoundException nfe) {
                 //intentionally left blank.
@@ -57,54 +61,70 @@ public class HDTFusion {
 
     }
 
-
-    static void getByID(String identifier) throws NotFoundException {
+    static void getByIDandProperty(String identifier, String property, WikidataQ wikidataQ) throws NotFoundException {
 
         Map<String, HDT> l = getMap();
-        Map<String, List<TripleString>> langtotriples = new HashMap();
 
         for (String lang : l.keySet()) {
+            //lang = "en";
+            //System.out.println("en" + identifier);
+
             HDT hdt = l.get(lang);
             // Search pattern: Empty string means "any"
-            try {
-                IteratorTripleString it = hdt.search(identifier, "", "");
-                while (it.hasNext())
 
-                {
+            List<TripleString> ls = new ArrayList<>();
+            try {
+
+                //System.out.println("query: " +identifier + "  http://wikidata.dbpedia.org/ontology/" + property);
+
+                IteratorTripleString it = hdt.search(identifier, "http://dbpedia.org/ontology/" + property, "");
+                while (it.hasNext()) {
                     TripleString ts = it.next();
-                    //System.out.println(ts.getObject());
-                    System.out.println(lang + " " + ts);
+                   // System.out.println(lang + " o " + ts.toString());
+                    ls.add(ts);
                 }
             } catch (NotFoundException nfe) {
                 //intentionally left blank.
                 //hdt.search should return null, not an NF exception
             }
-        }
-
-    }
-
-
-    static void getByProperty(String property) throws NotFoundException {
-
-        Map<String, HDT> l = getMap();
-        Map<String, List<TripleString>> langtotriples = new HashMap();
-
-        for (String lang : l.keySet()) {
-            HDT hdt = l.get(lang);
-            // Search pattern: Empty string means "any"
             try {
-                IteratorTripleString it = hdt.search("", property, "");
-                while (it.hasNext())
+                //System.out.println("query: "+identifier + "  http://wikidata.dbpedia.org/ontology/" + property);
 
-                {
+                IteratorTripleString it = hdt.search(identifier, "http://wikidata.dbpedia.org/ontology/" + property, "");
+                //it = hdt.search(identifier, "", "");
+                while (it.hasNext()) {
                     TripleString ts = it.next();
-                    //System.out.println(ts.getObject());
-                    System.out.println(lang + " " + ts);
+                  //  System.out.println(lang + " a " + ts.toString());
+                    ls.add(ts);
                 }
+
             } catch (NotFoundException nfe) {
                 //intentionally left blank.
                 //hdt.search should return null, not an NF exception
             }
+
+            for (TripleString ts : ls) {
+                // add values per property
+                String value = ts.getObject().toString();
+
+                //scrub scrub
+                value = value.replace("http://wikidata.dbpedia.org/resource/", "");
+                if (value.contains("http://www.w3.org/2001/XMLSchema#date")) {
+                    while (value.startsWith("0")) {
+                        value = value.substring(1);
+                    }
+                    while (value.contains("-0")) {
+                        value = value.replace("-0", "-");
+                    }
+                }
+
+                int roof = value.indexOf("^^");
+                if (roof > 0) {
+                    value = value.substring(0, roof);
+                }
+                wikidataQ.put("http://dbpedia.org/ontology/" + property, value, lang);
+            }
+
         }
 
     }
