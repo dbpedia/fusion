@@ -15,8 +15,8 @@ public class Fuse {
         //HDTFusion.getByID("http://wikidata.dbpedia.org/resource/Q64");
 
 
-        int qs = 3;
-        int i = 2;
+        int qs = 50000;
+        int i = 1;
         for (; i < qs; i++) {
             String wdUri = "http://wikidata.dbpedia.org/resource/Q" + i;
             WikidataQ valag = new WikidataQ(wdUri);

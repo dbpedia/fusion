@@ -35,7 +35,7 @@ public class Value {
             int currentmax = 0;
             sb.append("<td>");
             if(val.startsWith("Q")){
-                sb.append("<a href=\"http://wikidata.org/wiki/\" >") ;
+                sb.append("<a href=\"http://wikidata.org/wiki/"+val+"\" >") ;
                 sb.append(val) ;
                 sb.append("</a>") ;
 

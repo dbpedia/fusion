@@ -38,7 +38,7 @@ public class WikidataQ implements Comparable<WikidataQ> {
 
         for(String property : propertyToValue.keySet()){
             Value v = propertyToValue.get(property);
-            if(Strings.getMap().get(property)!=null){
+            if(Strings.getMap().get(property) !=null ){
                 property = Strings.getMap().get(property);
             }
             sb.append("<tr><td>");
